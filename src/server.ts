@@ -21,6 +21,7 @@ import { ToolRegistry } from "./tools/registry.js";
 import { buildAuthTools } from "./tools/authTools.js";
 import { buildReadTools } from "./tools/readTools.js";
 import { buildWriteTools } from "./tools/writeTools.js";
+import { buildManagementTools } from "./tools/managementTools.js";
 import { CapabilityService } from "./services/capabilityService.js";
 import { ConfirmationManager } from "./safety/confirmation.js";
 import { AuditLog } from "./safety/auditLog.js";
@@ -73,6 +74,7 @@ async function main(): Promise<void> {
   for (const tool of buildWriteTools({ client: yammer, auth, confirmation, audit })) {
     registry.register(tool);
   }
+  for (const tool of buildManagementTools(yammer)) registry.register(tool);
 
   // Bonus tool: surfaces capability probe results. Useful to assistants
   // that want to know what is reachable before trying a call.
