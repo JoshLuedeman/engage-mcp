@@ -4,19 +4,41 @@ A local TypeScript MCP server that gives MCP-compatible assistants
 (e.g., Clawpilot) controlled read/write access to Viva Engage / Yammer
 under the signed-in user's delegated Microsoft identity.
 
-> **Status:** in active development. The current focus is Phase 0/0.5
-> (bootstrap + auth spike). See `plan.md` in the session folder for the
-> full implementation plan.
+> **Status:** v0.1.0 — all 5 phases complete. Auth, read tools, safe
+> writes, community-management helpers, and gated moderation are
+> implemented and tested. See `CHANGELOG.md` for details. Phase 0.5
+> spike script (`scripts/spike.ts`) must be run against a real tenant
+> to confirm the exact Yammer scope set required for *your* tenant.
 
 ## What you can do (once complete)
 
-- List networks, communities, and recent posts you can already see.
-- Read full conversation threads.
-- Search messages.
-- Post and reply with a **preview → confirmation-token → commit** flow
-  so nothing leaves your machine without your explicit OK.
-- Get structured "what changed this week" data for assistant
-  summarization (the server returns data; the assistant writes prose).
+- **Auth** — `auth_login`, `auth_status`, `auth_clear_tokens`. Device-code
+  flow returns the verification URL and user code as structured tool data
+  so the assistant can relay it.
+- **Read** — list networks, communities, and recent posts you can already
+  see. Read full conversation threads. Search messages. Read your feed.
+- **Write** — post and reply with a **preview → confirmation-token →
+  commit** flow so nothing leaves your machine without explicit
+  approval.
+- **Helpers** — `engage_find_unanswered_questions`,
+  `engage_get_community_health`, `engage_summarize_recent_activity`.
+  The server returns *structured data*; the assistant writes any prose.
+- **Moderation (gated)** — `engage_like_message`,
+  `engage_unlike_message`, `engage_delete_message`. Delete requires a
+  reason and an `updatedAt`-bound confirmation token so an edit
+  between preview and commit invalidates the token. 403/404 maps to
+  `UNSUPPORTED_CAPABILITY`.
+
+### Tool inventory
+
+| Phase | Tools |
+|---|---|
+| Auth | `auth_login`, `auth_status`, `auth_clear_tokens` |
+| Capability | `engage_get_capabilities` |
+| Read | `engage_get_networks`, `engage_list_communities`, `engage_get_community`, `engage_get_community_messages`, `engage_get_thread`, `engage_search_messages`, `engage_get_feed` |
+| Write | `engage_post_message`, `engage_reply_to_thread` |
+| Helpers | `engage_find_unanswered_questions`, `engage_get_community_health`, `engage_summarize_recent_activity` |
+| Moderation | `engage_like_message`, `engage_unlike_message`, `engage_delete_message` |
 
 ## Important limitation: home network only
 
@@ -131,4 +153,25 @@ shims can confuse PATH resolution under some MCP clients.
 
 ## License
 
-TBD (see `LICENSE` once finalized).
+MIT — see `LICENSE`.
+
+## When to use Engage tools (vs. other MCP servers)
+
+- Reach for **engage-mcp** when the question is about Viva Engage
+  communities, posts, threads, feeds, or activity — *not* when the
+  question is about Outlook mail, Teams chats, SharePoint documents,
+  or other Microsoft 365 surfaces (use the M365/Graph MCP for those).
+- For unanswered-question scans across a community, prefer
+  `engage_find_unanswered_questions`; for cross-community pulse
+  checks prefer `engage_summarize_recent_activity` (it's the one
+  with bounded concurrency and partial-result tolerance).
+- The server **never** generates prose — it returns structured data
+  and lets your assistant compose. If you want a written digest,
+  ask the assistant to summarize the data it received back from
+  `engage_summarize_recent_activity` or `engage_get_community_health`.
+
+## Manual smoke checklist
+
+See `scripts/manual-smoke.md` for the end-to-end checklist to run
+against a real tenant after upgrading or making infrastructure
+changes.

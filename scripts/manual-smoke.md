@@ -50,15 +50,55 @@ Each step lists the MCP tool to invoke and what to look for.
 
 ## Phase 2 — Write tools (preview/confirm)
 
-_(not yet implemented as of this checklist)_
+10. **Post preview**
+    - `engage_post_message { communityIdOrName: "<test-community>", body: "smoke test" }`
+    - Expect `requiresConfirmation: true`, a `confirmationToken`, `expiresAt`, and the resolved community.
+    - Verify no message appeared in the community.
+
+11. **Confirm a test post**
+    - Call again with the same `body` AND `confirmationToken`.
+    - Expect `{ committed: true }` and the returned message id.
+    - Verify it appears in the community.
+
+12. **Confirmation invalidation**
+    - Repeat steps 10–11 but tamper the body before commit → expect `CONFIRMATION_MISMATCH`.
+    - Repeat with the same token twice → second commit should fail (single-use).
+
+13. **Reply preview + confirm**
+    - `engage_reply_to_thread { threadId: <from step 7>, body: "smoke reply" }` → preview.
+    - Re-call with `confirmationToken` → committed.
 
 ## Phase 3 — Helpers
 
-_(not yet implemented)_
+14. **Unanswered scan**
+    - `engage_find_unanswered_questions { communityIdOrName: "<test-community>", limit: 5 }`
+    - Inspect `candidates[].reasons` — each candidate should explain why it was flagged.
+
+15. **Community health**
+    - `engage_get_community_health { communityIdOrName: "<test-community>", days: 7 }`
+    - Verify counts, `activeAuthors`, and `topThreads`.
+
+16. **Multi-community summary**
+    - Pick 2–3 communities (use ids; resolve them first).
+    - `engage_summarize_recent_activity { communityIdsOrNames: [...], hoursAgo: 168 }`
+    - Should return per-community blocks. If one of the communities is unreachable, expect a warning entry — the rest still come back.
 
 ## Phase 4 — Moderation
 
-_(not yet implemented)_
+17. **Like → preview/commit/unlike**
+    - `engage_like_message { messageId: <id from step 11> }` → preview.
+    - Re-call with token → committed.
+    - `engage_unlike_message { messageId }` → preview + commit.
+
+18. **Delete a test message (hardest path)**
+    - Post a throwaway test message (steps 10–11) and capture its id.
+    - `engage_delete_message { messageId, reason: "manual smoke test" }` → preview returns the full resolved message.
+    - Re-call with the matching `confirmationToken` → `{ committed: true }`, message disappears.
+    - Verify `audit.log` in the cache directory has a `committed` entry with a `snapshot` but **no** body text.
+
+19. **Edit-in-flight invalidation (manual)**
+    - Post a fresh test message, run `engage_delete_message` preview, then edit the message in the Engage UI before confirming.
+    - The commit should fail with `CONFIRMATION_MISMATCH` ("Confirmation token was issued for a different target.").
 
 ## Reporting issues
 
