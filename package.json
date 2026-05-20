@@ -1,0 +1,63 @@
+{
+  "name": "mcp-yammer-engage",
+  "version": "0.1.0-dev",
+  "description": "MCP server that gives MCP-compatible assistants controlled read/write access to Viva Engage (Yammer) under the signed-in user's delegated identity.",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=18.17"
+  },
+  "bin": {
+    "mcp-yammer-engage": "dist/server.js"
+  },
+  "main": "dist/server.js",
+  "exports": {
+    ".": "./dist/server.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/server.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "spike": "tsx scripts/spike.ts",
+    "clean": "node -e \"import('node:fs').then(fs=>fs.rmSync('dist',{recursive:true,force:true}))\""
+  },
+  "dependencies": {
+    "@azure/msal-node": "^2.16.2",
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "dotenv": "^16.4.5",
+    "p-limit": "^6.1.0",
+    "pino": "^9.5.0",
+    "proper-lockfile": "^4.1.2",
+    "sanitize-html": "^2.13.1",
+    "zod": "^3.23.8",
+    "zod-to-json-schema": "^3.23.5"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "@types/node": "^22.9.0",
+    "@types/proper-lockfile": "^4.1.4",
+    "@types/sanitize-html": "^2.13.0",
+    "@typescript-eslint/eslint-plugin": "^8.15.0",
+    "@typescript-eslint/parser": "^8.15.0",
+    "@vitest/coverage-v8": "^2.1.5",
+    "eslint": "^9.15.0",
+    "msw": "^2.6.5",
+    "prettier": "^3.3.3",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.5"
+  }
+}
