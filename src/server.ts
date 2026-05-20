@@ -20,7 +20,11 @@ import { YammerClient } from "./clients/yammerClient.js";
 import { ToolRegistry } from "./tools/registry.js";
 import { buildAuthTools } from "./tools/authTools.js";
 import { buildReadTools } from "./tools/readTools.js";
+import { buildWriteTools } from "./tools/writeTools.js";
 import { CapabilityService } from "./services/capabilityService.js";
+import { ConfirmationManager } from "./safety/confirmation.js";
+import { AuditLog } from "./safety/auditLog.js";
+import * as path from "node:path";
 
 const YAMMER_API_BASE = "https://www.yammer.com/api/v1";
 
@@ -60,10 +64,15 @@ async function main(): Promise<void> {
 
   const yammer = new YammerClient(http);
   const capabilities = new CapabilityService(yammer);
+  const confirmation = new ConfirmationManager();
+  const audit = new AuditLog({ filePath: path.join(config.tokenCacheDir, "audit.log") });
 
   const registry = new ToolRegistry();
   for (const tool of buildAuthTools(auth)) registry.register(tool);
   for (const tool of buildReadTools(yammer)) registry.register(tool);
+  for (const tool of buildWriteTools({ client: yammer, auth, confirmation, audit })) {
+    registry.register(tool);
+  }
 
   // Bonus tool: surfaces capability probe results. Useful to assistants
   // that want to know what is reachable before trying a call.

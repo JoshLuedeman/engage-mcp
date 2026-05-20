@@ -183,6 +183,22 @@ export class MsalAuth {
     return this.pendingDeviceCode;
   }
 
+  /**
+   * Returns the signed-in account's stable `homeAccountId`, or throws
+   * `EngageAuthError` if no account is signed in. Used to bind a
+   * confirmation token to the issuing account so a re-auth as a
+   * different user invalidates pending tokens.
+   */
+  async getCurrentAccountId(): Promise<string> {
+    const account = await this.resolveAccount();
+    if (!account) {
+      throw new EngageAuthError(
+        "Not signed in. Call `auth_login` to start device-code authentication.",
+      );
+    }
+    return account.homeAccountId;
+  }
+
   async snapshot(): Promise<AuthSnapshot> {
     const account = await this.resolveAccount();
     return {
