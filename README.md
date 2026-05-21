@@ -58,6 +58,12 @@ accessible via API and are explicitly out of scope.
 You register your own Entra ID public-client app. Nobody else can use
 it; your tokens stay on your machine.
 
+> **Microsoft-internal users:** the corp tenant requires a Service Tree
+> ID to create a new App Registration. If you don't have one and just
+> want to try the server, see
+> [§ Reusing an existing Microsoft public client ID](#reusing-an-existing-microsoft-public-client-id)
+> below — you can skip this section entirely.
+
 1. Sign in to [portal.azure.com](https://portal.azure.com) with your
    work/school account.
 2. **App registrations → New registration**:
@@ -80,6 +86,46 @@ it; your tokens stay on your machine.
 5. Click **Add permissions**. If your tenant requires admin consent,
    submit an approval request — the assistant will surface a
    `PERMISSION_DENIED` error with consent guidance on first auth.
+
+### Reusing an existing Microsoft public client ID
+
+If you can't (or don't want to) create your own App Registration —
+typical for Microsoft-internal users without a Service Tree ID — you
+can point MSAL at one of Microsoft's existing public-client apps. Your
+tokens are still issued to *you*; you just borrow someone else's
+client manifest.
+
+| App | Client ID |
+|---|---|
+| Microsoft Azure CLI | `04b07795-8ddb-461a-bbee-02f9e1bf7b46` |
+| Microsoft Azure PowerShell | `1950a258-227b-4e31-a9cf-717495945fc8` |
+| Microsoft Graph PowerShell | `14d82eec-204b-4c2f-b7e8-296a70dab67e` |
+
+Set those in your `.env` (or MCP client `env` block):
+
+```bash
+AZURE_CLIENT_ID=04b07795-8ddb-461a-bbee-02f9e1bf7b46
+AZURE_TENANT_ID=<your-tenant-guid>   # or "organizations"
+```
+
+**Caveats:**
+
+- Whether `https://api.yammer.com/user_impersonation` is exposed by
+  any given Microsoft public client depends on its current manifest.
+  The Phase 0.5 spike (`npm run spike`) is the fastest way to find
+  out — it will either acquire a Yammer token or fail with a
+  consent/scope error you can act on.
+- You cannot edit the redirect URIs or requested permissions on a
+  client you don't own. If a needed Yammer scope (e.g.
+  `Community.Read.All`) isn't already granted on that app, this path
+  won't work and you'll need a real App Registration via Service
+  Tree (Option B) or a dev tenant (Option C).
+- Audit logs in your tenant will attribute the activity to the public
+  client (e.g. "Microsoft Azure CLI"), not to a named app. That's
+  fine for personal use, less fine if you want clean attribution.
+
+If the public-client path doesn't work for your tenant, fall back to
+the App Registration steps above.
 
 ## Build
 
