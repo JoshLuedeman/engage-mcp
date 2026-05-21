@@ -179,7 +179,7 @@ the cache directory printed by `auth_status`.
 
 ## Add to your MCP client
 
-### Clawpilot / GitHub Copilot CLI
+### GitHub Copilot CLI
 
 Copilot CLI manages MCP servers via the interactive `/mcp` command —
 you don't hand-edit a config file. Inside a Copilot CLI session:
