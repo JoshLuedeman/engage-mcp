@@ -32,7 +32,8 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "spike": "tsx scripts/spike.ts",
-    "clean": "node -e \"import('node:fs').then(fs=>fs.rmSync('dist',{recursive:true,force:true}))\""
+    "clean": "node -e \"import('node:fs').then(fs=>fs.rmSync('dist',{recursive:true,force:true}))\"",
+    "smoke": "node scripts/smoke-startup.mjs"
   },
   "dependencies": {
     "@azure/msal-node": "^2.16.2",

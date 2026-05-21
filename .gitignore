@@ -29,3 +29,6 @@ logs/
 *.swp
 .DS_Store
 Thumbs.db
+
+# CI smoke artifacts
+.ci-smoke-cache/
