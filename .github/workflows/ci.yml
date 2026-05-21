@@ -42,12 +42,12 @@ jobs:
         run: npm run build
 
       - name: Startup smoke (initialize + tools/list)
+        # The server defaults AZURE_CLIENT_ID to the Microsoft Azure CLI
+        # public client and AZURE_TENANT_ID to "organizations" when
+        # unset, so CI needs no Azure values at all. Override locally
+        # via .env (see README) or via secrets here if you want clean
+        # attribution.
         env:
-          # Real values flow in from GitHub Secrets when set; otherwise
-          # fall back to Microsoft Azure CLI's public client id + the
-          # Microsoft corp tenant. The server only contacts Azure when
-          # a tool that requires auth is invoked, so smoke can run with
-          # any non-empty pair of GUIDs.
-          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID || '04b07795-8ddb-461a-bbee-02f9e1bf7b46' }}
-          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID || '72f988bf-86f1-41af-91ab-2d7cd011db47' }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
         run: npm run smoke

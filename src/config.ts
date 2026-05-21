@@ -53,13 +53,53 @@ function parseInt(name: string, raw: string | undefined, fallback: number): numb
 }
 
 /**
+ * Public client IDs that any tenant user can authenticate against. The
+ * server falls back to the Azure CLI client when AZURE_CLIENT_ID is
+ * unset so a fresh install boots without any registration ceremony.
+ * Tokens are still issued to the signed-in user; audit logs in the
+ * tenant will attribute the activity to "Microsoft Azure CLI".
+ */
+export const DEFAULT_PUBLIC_CLIENT_ID = "04b07795-8ddb-461a-bbee-02f9e1bf7b46";
+
+/**
+ * MSAL multi-tenant authority. Resolves to the user's home tenant
+ * during the device-code flow based on which account they sign in
+ * with. Used as the tenant fallback so users on AAD-joined machines
+ * don't have to look up their tenant GUID manually.
+ */
+export const DEFAULT_TENANT_AUTHORITY = "organizations";
+
+/**
  * Loads, validates, and freezes configuration from environment variables.
  * Throws an `Error` with a human-readable message if validation fails.
+ *
+ * Missing `AZURE_CLIENT_ID` / `AZURE_TENANT_ID` are filled in with the
+ * defaults above and a one-line stderr notice — see
+ * `DEFAULT_PUBLIC_CLIENT_ID` for the trade-off.
  */
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
+  const clientIdRaw = (env.AZURE_CLIENT_ID ?? "").trim();
+  const tenantIdRaw = (env.AZURE_TENANT_ID ?? "").trim();
+
+  let azureClientId = clientIdRaw;
+  let azureTenantId = tenantIdRaw;
+
+  if (azureClientId.length === 0) {
+    azureClientId = DEFAULT_PUBLIC_CLIENT_ID;
+    process.stderr.write(
+      `[config] AZURE_CLIENT_ID not set — defaulting to Microsoft Azure CLI public client (${DEFAULT_PUBLIC_CLIENT_ID}). Override with AZURE_CLIENT_ID for clean tenant attribution.\n`,
+    );
+  }
+  if (azureTenantId.length === 0) {
+    azureTenantId = DEFAULT_TENANT_AUTHORITY;
+    process.stderr.write(
+      `[config] AZURE_TENANT_ID not set — defaulting to "${DEFAULT_TENANT_AUTHORITY}" (MSAL will resolve from the signed-in account).\n`,
+    );
+  }
+
   const raw = {
-    azureClientId: env.AZURE_CLIENT_ID ?? "",
-    azureTenantId: env.AZURE_TENANT_ID ?? "",
+    azureClientId,
+    azureTenantId,
     yammerScopes: parseScopes(env.YAMMER_SCOPES),
     authMode: (env.AUTH_MODE ?? "device_code") as "device_code" | "interactive",
     maxConcurrentRequests: parseInt("MAX_CONCURRENT_REQUESTS", env.MAX_CONCURRENT_REQUESTS, 2),

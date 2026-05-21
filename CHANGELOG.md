@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **Zero-config startup**: if `AZURE_CLIENT_ID` is unset the server
+  falls back to the Microsoft Azure CLI public client id; if
+  `AZURE_TENANT_ID` is unset it falls back to the MSAL multi-tenant
+  authority `organizations`, which resolves to the signed-in user's
+  home tenant during device-code login. Either default emits a
+  one-line stderr notice. Override via env or `.env` for clean
+  attribution.
+- **`npm run setup`**: interactive wizard that auto-detects the user's
+  tenant from `dsregcmd /status` (Windows AAD-joined) and `az account
+  show`, asks for confirmation, and writes a gitignored `.env`.
+- **`npm run smoke`**: CI startup smoke that spawns the built server,
+  performs an MCP `initialize` + `tools/list` over stdio, and asserts
+  the well-known tools are registered. Runs in the standard CI matrix
+  with no Azure values required.
+
+### Changed
+- `loadConfig` no longer throws when `AZURE_CLIENT_ID` /
+  `AZURE_TENANT_ID` are missing; it logs the fallback to stderr and
+  proceeds. Other config validation still throws as before.
+
 ## [0.1.0] — 2026-05-20
 
 Initial release. All 5 phases of the implementation plan are complete.

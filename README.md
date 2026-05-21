@@ -134,8 +134,26 @@ git clone <this-repo>
 cd engage-mcp
 npm install
 npm run build
-cp .env.example .env   # then fill in AZURE_CLIENT_ID and AZURE_TENANT_ID
 ```
+
+## Configure (optional, ~10 seconds)
+
+The server boots with **zero configuration** — by default it uses the
+Microsoft Azure CLI public client id and lets MSAL resolve your
+tenant from whichever account you sign in with. You can stop here and
+just run it.
+
+If you want to lock in specific values (e.g. for clean tenant
+attribution in audit logs), either:
+
+```bash
+npm run setup     # interactive: detects your tenant from
+                  # dsregcmd / az CLI, writes .env (gitignored)
+```
+
+or copy `.env.example` to `.env` and fill in the values by hand. See
+[§ Reusing an existing Microsoft public client ID](#reusing-an-existing-microsoft-public-client-id)
+for the trade-offs of the default client id.
 
 ## Run
 
