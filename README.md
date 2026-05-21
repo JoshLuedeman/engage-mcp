@@ -177,7 +177,38 @@ Open the URL, enter the code, sign in. The token is cached locally
 To clear cached tokens: call the `auth_clear_tokens` tool, or delete
 the cache directory printed by `auth_status`.
 
-## MCP client configuration (example)
+## Add to your MCP client
+
+### Clawpilot / GitHub Copilot CLI
+
+Copilot CLI manages MCP servers via the interactive `/mcp` command —
+you don't hand-edit a config file. Inside a Copilot CLI session:
+
+```text
+/mcp
+```
+
+Choose **Add server**, then provide:
+
+- **Name:** `viva-engage` (or anything you'll remember)
+- **Type:** `stdio`
+- **Command:** `node`
+- **Args:** `C:\Users\<you>\path\to\engage-mcp\dist\server.js`
+- **Env:** leave empty (defaults to Azure CLI public client + MSAL
+  multi-tenant resolution — see § "Reusing an existing Microsoft
+  public client ID"). If you want clean attribution, add
+  `AZURE_CLIENT_ID` and `AZURE_TENANT_ID` here.
+
+Verify it loaded with `/env` (look for the server name under "MCP
+servers"), then try one of the read tools, e.g.: *"List my Engage
+communities."* The first call triggers device-code login — open the
+URL it prints, paste the code, sign in. After that, calls are silent
+until the cached token expires.
+
+### Claude Desktop, Cursor, and other config-file clients
+
+Add this to your client's MCP config (typically `claude_desktop_config.json`
+or equivalent — check your client's docs for the exact path):
 
 ```json
 {
@@ -186,15 +217,15 @@ the cache directory printed by `auth_status`.
       "command": "node",
       "args": [
         "C:\\Users\\<you>\\path\\to\\engage-mcp\\dist\\server.js"
-      ],
-      "env": {
-        "AZURE_CLIENT_ID": "<client-id>",
-        "AZURE_TENANT_ID": "<tenant-id>"
-      }
+      ]
     }
   }
 }
 ```
+
+The `env` block is optional — the server runs with zero config. Add
+`AZURE_CLIENT_ID` / `AZURE_TENANT_ID` there if you want non-default
+values without a `.env` file.
 
 On Windows, prefer an explicit `node` path or a `.cmd` shim — npx
 shims can confuse PATH resolution under some MCP clients.
