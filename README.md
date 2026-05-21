@@ -53,7 +53,7 @@ accessible via API and are explicitly out of scope.
 
 - Node.js ≥ 18.17
 - A Microsoft work/school account with Viva Engage access
-- An MCP-compatible assistant (Clawpilot, Claude Desktop, etc.)
+- An MCP-compatible assistant (Github Copilot, Claude Desktop, etc.)
 
 ## Azure App Registration (one-time, ~10 minutes)
 
