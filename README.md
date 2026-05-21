@@ -1,5 +1,7 @@
 # mcp-yammer-engage
 
+[![CI](https://github.com/JoshLuedeman/engage-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/JoshLuedeman/engage-mcp/actions/workflows/ci.yml)
+
 A local TypeScript MCP server that gives MCP-compatible assistants
 (e.g., Clawpilot) controlled read/write access to Viva Engage / Yammer
 under the signed-in user's delegated Microsoft identity.
