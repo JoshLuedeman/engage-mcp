@@ -5,7 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.0] — 2026-06-02
+
+First published release. All 5 phases of the implementation plan are
+complete; the package is now published to npm and GitHub Packages.
 
 ### Added
 - **Zero-config startup**: if `AZURE_CLIENT_ID` is unset the server
@@ -22,17 +25,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   performs an MCP `initialize` + `tools/list` over stdio, and asserts
   the well-known tools are registered. Runs in the standard CI matrix
   with no Azure values required.
-
-### Changed
-- `loadConfig` no longer throws when `AZURE_CLIENT_ID` /
-  `AZURE_TENANT_ID` are missing; it logs the fallback to stderr and
-  proceeds. Other config validation still throws as before.
-
-## [0.1.0] — 2026-05-20
-
-Initial release. All 5 phases of the implementation plan are complete.
-
-### Added
+- **Release pipeline**: GitHub Actions workflow tagged `v*` builds,
+  tests, smokes, then publishes the package to npmjs.org (with
+  provenance) and GitHub Packages, and creates a GitHub Release with
+  notes extracted from this changelog.
 - **Auth**: MSAL public-client device-code flow (primary) with optional
   interactive browser fallback. Encrypted on-disk token cache
   (AES-256-GCM, machine-derived key, atomic writes, file-locked).

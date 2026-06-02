@@ -129,7 +129,19 @@ AZURE_TENANT_ID=<your-tenant-guid>   # or "organizations"
 If the public-client path doesn't work for your tenant, fall back to
 the App Registration steps above.
 
-## Build
+## Install
+
+The fastest path — no clone, no build, just run via npx (requires
+Node 20+):
+
+```bash
+npx -y @joshluedeman/mcp-yammer-engage
+```
+
+That's the same command you'd put into your MCP client's `command`
+field (see [§ Add to your MCP client](#add-to-your-mcp-client) below).
+
+Or if you'd rather work from source:
 
 ```bash
 git clone https://github.com/JoshLuedeman/engage-mcp.git
@@ -192,8 +204,8 @@ Choose **Add server**, then provide:
 
 - **Name:** `viva-engage` (or anything you'll remember)
 - **Type:** `stdio`
-- **Command:** `node`
-- **Args:** `C:\Users\<you>\path\to\engage-mcp\dist\server.js`
+- **Command:** `npx -y @joshluedeman/mcp-yammer-engage`
+  *(or, if running from source: `node C:\path\to\engage-mcp\dist\server.js`)*
 - **Env:** leave empty (defaults to Azure CLI public client + MSAL
   multi-tenant resolution — see § "Reusing an existing Microsoft
   public client ID"). If you want clean attribution, add
@@ -214,6 +226,19 @@ or equivalent — check your client's docs for the exact path):
 {
   "mcpServers": {
     "viva-engage": {
+      "command": "npx",
+      "args": ["-y", "@joshluedeman/mcp-yammer-engage"]
+    }
+  }
+}
+```
+
+Or, if you'd rather pin to a local clone:
+
+```json
+{
+  "mcpServers": {
+    "viva-engage": {
       "command": "node",
       "args": [
         "C:\\Users\\<you>\\path\\to\\engage-mcp\\dist\\server.js"
@@ -227,8 +252,8 @@ The `env` block is optional — the server runs with zero config. Add
 `AZURE_CLIENT_ID` / `AZURE_TENANT_ID` there if you want non-default
 values without a `.env` file.
 
-On Windows, prefer an explicit `node` path or a `.cmd` shim — npx
-shims can confuse PATH resolution under some MCP clients.
+On Windows, if `npx` resolution is flaky from your MCP client, prefer
+the explicit `node`-and-path form above.
 
 ## Security model (short version)
 
