@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] — 2026-06-02
+
+### Fixed
+- First successful publish to **npmjs.org**. v0.1.0 made it to GitHub
+  Packages but the npmjs.org publish failed because the configured
+  token didn't have 2FA bypass enabled. No code changes from v0.1.0.
+
 ## [0.1.0] — 2026-06-02
 
 First published release. All 5 phases of the implementation plan are

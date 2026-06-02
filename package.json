@@ -1,6 +1,6 @@
 {
   "name": "@joshluedeman/mcp-yammer-engage",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MCP server that gives MCP-compatible assistants controlled read/write access to Viva Engage (Yammer) under the signed-in user's delegated identity.",
   "private": false,
   "type": "module",
