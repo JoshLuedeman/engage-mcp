@@ -132,7 +132,7 @@ the App Registration steps above.
 ## Build
 
 ```bash
-git clone <this-repo>
+git clone https://github.com/JoshLuedeman/engage-mcp.git
 cd engage-mcp
 npm install
 npm run build
