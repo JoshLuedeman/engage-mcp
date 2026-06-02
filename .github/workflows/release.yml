@@ -36,19 +36,32 @@ jobs:
     name: Publish to npmjs.org
     needs: verify
     runs-on: ubuntu-latest
-    # Skip cleanly if no NPM_TOKEN is configured — the GH-Packages and
-    # release jobs still run so the tag isn't wasted.
-    if: ${{ vars.NPM_PUBLISH_ENABLED == 'true' || secrets.NPM_TOKEN != '' }}
     steps:
+      - name: Check NPM_TOKEN
+        id: gate
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NPM_TOKEN" ]; then
+            echo "NPM_TOKEN not set — skipping npm publish. Add the secret in repo settings and re-run this workflow to publish to npmjs.org."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/checkout@v4
+        if: steps.gate.outputs.skip != 'true'
       - uses: actions/setup-node@v4
+        if: steps.gate.outputs.skip != 'true'
         with:
           node-version: '22'
           cache: npm
           registry-url: 'https://registry.npmjs.org'
-      - run: npm ci
-      - run: npm run build
+      - if: steps.gate.outputs.skip != 'true'
+        run: npm ci
+      - if: steps.gate.outputs.skip != 'true'
+        run: npm run build
       - name: Publish (with provenance)
+        if: steps.gate.outputs.skip != 'true'
         run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
