@@ -1,0 +1,62 @@
+name: Copilot Setup Steps
+
+# Prepares the environment for the GitHub Copilot coding agent: installs this
+# repository's Node.js toolchain and the hve-core-all Copilot CLI plugin (from
+# github.com/microsoft/hve-core) so the agent starts ready to work.
+#
+# The single job MUST be named `copilot-setup-steps` for the Copilot coding
+# agent to discover and run it. See:
+# https://docs.github.com/en/copilot/customizing-copilot/customizing-the-development-environment-for-copilot-coding-agent
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+
+permissions:
+  contents: read
+
+jobs:
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      # Node.js is set up even though this is a Node project so the Copilot CLI
+      # plugin install (which needs npm) always has a runtime available. Version
+      # matches package.json "engines.node": ">=20" and the CI matrix baseline.
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        continue-on-error: true
+        run: npm ci
+
+      - name: Install hve-core-all plugin
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: bash .devcontainer/setup-hve-core.sh
+
+      - name: Verify tools
+        run: |
+          echo "node:    $(node --version)"
+          echo "npm:     $(npm --version)"
+          if command -v copilot >/dev/null 2>&1; then
+            echo "copilot: $(copilot --version)"
+          else
+            echo "copilot: not installed"
+          fi
+          copilot plugin list || true
