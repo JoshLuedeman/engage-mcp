@@ -1,0 +1,22 @@
+{
+  // Dev container for engage-mcp — a TypeScript / Node.js (ESM) MCP server.
+  //
+  // The typescript-node base image ships Node.js 20 (this repo's supported
+  // engine, package.json "engines.node": ">=20"), so the hve-core-all Copilot
+  // CLI plugin installed in postCreateCommand has Node and npm available
+  // without layering a separate Node feature.
+  "name": "engage-mcp",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:20",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode"]
+    }
+  },
+  // Install this repo's dependencies, then best-effort install the hve-core-all
+  // Copilot CLI plugin (shared with .github/workflows/copilot-setup-steps.yml).
+  "postCreateCommand": "npm ci && bash .devcontainer/setup-hve-core.sh",
+  "remoteUser": "node"
+}
